@@ -1,11 +1,7 @@
 package com.example.guacamolepocket.repository
 
-import android.util.Log
-import com.parse.ParseCloud
-import com.parse.ParseException
-import com.parse.FunctionCallback
-import com.parse.ParseQuery
-import com.parse.livequery.ParseLiveQueryClient
+//import com.parse.ParseCloud
+//import com.parse.FunctionCallback
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -16,61 +12,116 @@ import kotlin.coroutines.resumeWithException
  * NOTAS:
  * - No inicializar liveQueryClient hasta que Parse esté inicializado en Application.onCreate().
  */
+
+data class SpawnData(
+    val spawnId: String?,
+    val cx: Float?,
+    val cy: Float?,
+    val r: Float?,
+    val ttlMs: Long?
+)
+
+data class RoomState(
+    val score: Map<String, Int>,
+    val round: Int,
+    val maxRounds: Int,
+    val lastSpawn: SpawnData?
+)
+
 class GameRepository {
 
-    // Inicialización perezosa del cliente LiveQuery
-    private val liveQueryClient: ParseLiveQueryClient by lazy {
-        ParseLiveQueryClient.Factory.getClient()
-    }
-
-    /**
-     * joinRoom: llama a la Cloud Function 'joinRoom' con { code } y retorna roomId (String).
-     * Envuelve la llamada callback-style de Parse en una coroutine suspend.
-     */
-    suspend fun joinRoom(code: String): String = suspendCancellableCoroutine { cont ->
-        try {
+    suspend fun joinRoom(code: String): String =
+        suspendCancellableCoroutine { cont ->
             val params = mapOf("code" to code)
-            // Usamos FunctionCallback<Any?> explícito para que Kotlin pueda inferir tipos
-            ParseCloud.callFunctionInBackground("joinRoom", params, FunctionCallback<Any?> { result, e ->
-                if (e != null) {
-                    // Parse lanza ParseException en caso de error
-                    cont.resumeWithException(e)
-                    return@FunctionCallback
-                }
-
-                try {
-                    when (result) {
-                        is Map<*, *> -> {
-                            val roomId = result["roomId"] as? String
-                            if (roomId != null) cont.resume(roomId)
-                            else cont.resumeWithException(RuntimeException("roomId no recibido en joinRoom"))
-                        }
-                        is String -> cont.resume(result)
-                        else -> cont.resumeWithException(RuntimeException("Respuesta inesperada de joinRoom: $result"))
-                    }
-                } catch (ex: Exception) {
-                    cont.resumeWithException(ex)
-                }
-            })
-        } catch (ex: Exception) {
-            cont.resumeWithException(ex)
+//            ParseCloud.callFunctionInBackground(
+//                "joinRoom",
+//                params,
+//                FunctionCallback<Any?> { result, e ->
+//                    if (e != null) {
+//                        cont.resumeWithException(e)
+//                        return@FunctionCallback
+//                    }
+//
+//                    try {
+//                        val map = result as Map<*, *>
+//                        val roomId = map["roomId"] as? String
+//                        if (roomId != null) cont.resume(roomId)
+//                        else cont.resumeWithException(
+//                            RuntimeException("roomId no recibido")
+//                        )
+//                    } catch (ex: Exception) {
+//                        cont.resumeWithException(ex)
+//                    }
+//                }
+//            )
         }
-    }
 
-    // Ejemplo de otro wrapper suspend (startGame) siguiendo el mismo patrón:
-    suspend fun startGame(roomId: String): Boolean = suspendCancellableCoroutine { cont ->
-        try {
-            val params = mapOf("roomId" to roomId)
-            ParseCloud.callFunctionInBackground("startGame", params, FunctionCallback<Any?> { result, e ->
-                if (e != null) {
-                    cont.resumeWithException(e)
-                    return@FunctionCallback
-                }
-                // Si no hubo excepción, consideramos éxito (Cloud code retorna "ok")
-                cont.resume(true)
-            })
-        } catch (ex: Exception) {
-            cont.resumeWithException(ex)
+    suspend fun startGame(roomId: String): Boolean =
+        suspendCancellableCoroutine { cont ->
+//            ParseCloud.callFunctionInBackground(
+//                "startGame",
+//                mapOf("roomId" to roomId),
+//                FunctionCallback<Any?> { _, e ->
+//                    if (e != null) cont.resumeWithException(e)
+//                    else cont.resume(true)
+//                }
+//            )
         }
-    }
+
+    suspend fun hitTarget(roomId: String, spawnId: String, player: String): Boolean =
+        suspendCancellableCoroutine { cont ->
+            val params = mapOf(
+                "roomId" to roomId,
+                "spawnId" to spawnId,
+                "player" to player           // <-- NECESARIO O EL BACKEND FALLA
+            )
+
+//            ParseCloud.callFunctionInBackground(
+//                "hitTarget",
+//                params,
+//                FunctionCallback<Any?> { _, e ->
+//                    if (e != null) cont.resumeWithException(e)
+//                    else cont.resume(true)
+//                }
+//            )
+        }
+
+    suspend fun getRoomState(roomId: String): RoomState =
+        suspendCancellableCoroutine { cont ->
+//            ParseCloud.callFunctionInBackground(
+//                "getRoomState",
+//                mapOf("roomId" to roomId),
+//                FunctionCallback<Any?> { result, e ->
+//                    if (e != null) {
+//                        cont.resumeWithException(e)
+//                        return@FunctionCallback
+//                    }
+//
+//                    try {
+//                        val map = result as Map<*, *>
+//
+//                        val score = map["score"] as? Map<String, Int> ?: emptyMap()
+//                        val round = (map["round"] as? Number)?.toInt() ?: 0
+//                        val maxRounds = (map["maxRounds"] as? Number)?.toInt() ?: 5
+//
+//                        val spawn = map["lastSpawn"] as? Map<*, *>
+//
+//                        val lastSpawn = if (spawn != null) {
+//                            SpawnData(
+//                                spawnId = spawn["spawnId"] as? String,
+//                                cx = (spawn["cx"] as? Number)?.toFloat(),
+//                                cy = (spawn["cy"] as? Number)?.toFloat(),
+//                                r = (spawn["r"] as? Number)?.toFloat(),
+//                                ttlMs = (spawn["ttlMs"] as? Number)?.toLong()
+//                            )
+//                        } else null
+//
+//                        cont.resume(RoomState(score, round, maxRounds, lastSpawn))
+//
+//                    } catch (ex: Exception) {
+//                        cont.resumeWithException(ex)
+//                    }
+//                }
+//            )
+        }
 }

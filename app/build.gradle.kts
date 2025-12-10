@@ -1,9 +1,10 @@
+import com.android.build.api.dsl.Packaging
+
 plugins {
-    alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.kotlin.compose)
-    // Aplica el plugin KAPT de forma explícita para Kotlin DSL:
-    id("org.jetbrains.kotlin.kapt")
+    id("com.android.application")
+    id("org.jetbrains.kotlin.android")
+    id("org.jetbrains.kotlin.plugin.compose")
+
 }
 
 android {
@@ -12,7 +13,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.guacamolepocket"
-        minSdk = 34
+        minSdk = 26
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
@@ -31,55 +32,50 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
+
     kotlinOptions {
-        jvmTarget = "11"
+        jvmTarget = "17"
     }
+
     buildFeatures {
         compose = true
-        viewBinding = true
+    }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.9"
+    }
+
+    fun Packaging.() {
+        resources.excludes.add("META-INF/DEPENDENCIES")
+        resources.excludes.add("META-INF/LICENSE")
+        resources.excludes.add("META-INF/LICENSE.txt")
+        resources.excludes.add("META-INF/NOTICE")
+        resources.excludes.add("META-INF/NOTICE.txt")
     }
 }
 
 dependencies {
-    // ---------- CORE ANDROID / COMPOSE ----------
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.lifecycle.runtime.ktx)
-    implementation(libs.androidx.activity.compose)
+    implementation("androidx.datastore:datastore-preferences:1.0.0")
+    implementation(libs.androidx.core.ktx.v1101)
+    implementation(libs.androidx.appcompat.v161)
+    implementation(libs.material)
+    implementation(libs.androidx.activity.ktx)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
-    implementation(libs.androidx.ui.graphics)
-    implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
-
-    // ---------- LIFECYCLE ----------
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2") // ViewModel + coroutines support
-    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.6.2")
-
-    // ---------- ROOM (persistencia local) ----------
-    implementation("androidx.room:room-runtime:2.6.1") // VERSION UNIFICADA
-    implementation("androidx.room:room-ktx:2.6.1")
-    kapt("androidx.room:room-compiler:2.6.1") // REQUIERE plugin 'org.jetbrains.kotlin.kapt' (aplicado arriba)
-
-    // ---------- COROUTINES ----------
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
-
-    // ---------- PARSE (Back4App) y LIVEQUERY ----------
-    // Parse SDK (módulo 'parse' del repo Parse-SDK-Android en JitPack)
-    implementation("com.github.parse-community.Parse-SDK-Android:parse:4.1.0")
-    // Cliente LiveQuery (usa la release 1.2.2 que existe en el repo)
-    implementation("com.github.parse-community:ParseLiveQuery-Android:1.2.2")
-
-
-
-    // ---------- TESTS ----------
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(platform(libs.androidx.compose.bom))
-    androidTestImplementation(libs.androidx.ui.test.junit4)
+    implementation(libs.androidx.activity.compose.v172)
+    implementation(libs.androidx.ui.tooling.preview)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+    androidTestImplementation(platform(libs.androidx.compose.bom))
+    androidTestImplementation(libs.androidx.ui.test.junit4)
+    implementation("io.socket:socket.io-client:2.0.1") {
+        exclude(group = "org.json", module = "json")
+    }
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.junit.v115)
+    androidTestImplementation(libs.androidx.espresso.core.v351)
 }

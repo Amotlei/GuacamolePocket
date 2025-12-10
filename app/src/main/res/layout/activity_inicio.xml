@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F0FFF0"> <!-- fondo suave verde -->
+
+    <EditText
+        android:id="@+id/etName"
+        android:hint="Tu nombre"
+        android:layout_width="50dp"
+        android:layout_height="wrap_content"/>
+
+    <EditText
+        android:id="@+id/etCode"
+        android:hint="Código de sala"
+        android:layout_width="50dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"/>
+
+    <Button
+        android:id="@+id/btnJoin"
+        android:text="Entrar a sala"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"/>
+
+    <Button
+        android:id="@+id/btnStart"
+        android:text="Iniciar juego (si eres anfitrión)"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"/>
+</LinearLayout>
